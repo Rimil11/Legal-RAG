@@ -57,12 +57,12 @@ def print_documents(docs):
 
         sources.append((source, page))
 
-        print("=" * 70)
-        print(f"Document {index}")
-        print(f"Source : {source}")
-        print(f"Page   : {page}")
-        print("-" * 70)
-        print(doc.page_content)
+        # print("=" * 70)
+        # print(f"Document {index}")
+        # print(f"Source : {source}")
+        # print(f"Page   : {page}")
+        # print("-" * 70)
+        # print(doc.page_content)
 
     return sources
 
@@ -157,9 +157,9 @@ def typewriter(text, delay=0.01):
 
 def ask_question(question):
 
-    print("\n" + "=" * 80)
-    print("Searching Documents...")
-    print("=" * 80)
+    # print("\n" + "=" * 80)
+    # print("Searching Documents...")
+    # print("=" * 80)
 
     docs = retrieve_documents(question)
 
@@ -169,18 +169,16 @@ def ask_question(question):
 
     messages = build_messages(question, context)
 
-    print("\n" + "=" * 80)
-    print("Generating Answer...")
-    print("=" * 80)
+    # print("\n" + "=" * 80)
+    # print("Generating Answer...")
+    # print("=" * 80)
 
-    answer = llm.invoke(messages)
+    # answer = llm.invoke(messages)
+    # return answer
 
-    print_sources(sources)
-
-    print("\nResponse:\n")
-
-    return answer
-
+    for chunk in llm.stream(messages):
+        yield chunk
+        # print(chunk)
 
 # ======================================================
 # Chat Loop
