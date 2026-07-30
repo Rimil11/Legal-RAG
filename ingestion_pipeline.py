@@ -7,9 +7,8 @@ from langchain_community.document_loaders import (
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
-
-
-
+from utils.pdf_loader import load_pdf
+import glob
 
 def load_documents(docs_path):
     print("Loading documents from", docs_path)
@@ -31,8 +30,6 @@ def load_documents(docs_path):
     )
 
     # Load PDF files
-    import glob
-
     pdf_documents = []
 
     pdf_files = glob.glob(
@@ -41,15 +38,10 @@ def load_documents(docs_path):
     )
 
     for pdf_file in pdf_files:
-        try:
-            print(f"Loading PDF: {pdf_file}")
 
-            loader = PyPDFLoader(pdf_file)
-            pdf_documents.extend(loader.load())
+        print("Loading", pdf_file)
 
-        except Exception as e:
-            print(f"Failed to load PDF: {pdf_file}")
-            print(f"Error: {e}")
+        pdf_documents.extend(load_pdf(pdf_file))
 
     txt_documents = text_loader.load()
 
@@ -81,7 +73,7 @@ def split_documents(documents, chunk_size=900, chunk_overlap=150):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        separators=["\n\n", "\n", " ", ""],
+        separators=["\n\n", "\n"],
     )
 
     chunks = text_splitter.split_documents(documents)

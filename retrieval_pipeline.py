@@ -37,12 +37,21 @@ llm = OllamaLLM(model=LLM_MODEL)
 # ======================================================
 
 def retrieve_documents(question):
-    retriever = db.as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": TOP_K}
+
+    results = db.similarity_search_with_relevance_scores(
+        question,
+        k=TOP_K
     )
 
-    return retriever.invoke(question)
+    docs = []
+    for doc, score in results:
+
+        print(f"Score: {score:.3f}")
+
+        if score >= 0.4:
+            docs.append(doc)
+
+    return docs
 
 
 def print_documents(docs):
@@ -97,7 +106,8 @@ def build_messages(question, context):
             content="""
 You are an AI Legal Assistant.
 
-Answer ONLY from the retrieved documents.
+Answer ONLY from the context of retrieved documents.
+Try to expalin for general question and give concise response to straight up facts.
 
 Rules:
 1. Never use outside knowledge.
@@ -107,6 +117,11 @@ Rules:
 4. Combine multiple retrieved documents when helpful.
 5. Always mention document name, section/article number and page number whenever available.
 6. Keep answers clear and concise.
+6. When answering:
+    - Always use ONLY the metadata provided with each retrieved document.
+    - Never infer or guess page numbers, section numbers, article numbers, or document names.
+    - If metadata is missing, omit it rather than inventing it.
+
 """
         ),
 
@@ -155,30 +170,82 @@ def typewriter(text, delay=0.01):
 # Main RAG Function
 # ======================================================
 
+# def ask_question(question):
+
+#     # print("\n" + "=" * 80)
+#     # print("Searching Documents...")
+#     # print("=" * 80)
+
+#     docs = retrieve_documents(question)
+
+#     sources = print_documents(docs)
+
+#     context = build_context(docs)
+
+#     messages = build_messages(question, context)
+
+#     # print("\n" + "=" * 80)
+#     # print("Generating Answer...")
+#     # print("=" * 80)
+
+#     # answer = llm.invoke(messages)
+#     # return answer
+
+#     for chunk in llm.stream(messages):
+#         yield chunk
+        # print(chunk)
+
+def build_sources(docs):
+
+    sources = []
+
+    seen = set()
+
+    for doc in docs:
+
+        metadata = doc.metadata
+
+        key = (
+            metadata.get("source"),
+            metadata.get("page"),
+            metadata.get("section")
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+
+        sources.append({
+
+            "document": metadata.get("source"),
+
+            "page": metadata.get("page"),
+
+            "section": metadata.get("section"),
+
+            "title": metadata.get("title"),
+
+            "preview": doc.page_content[:300]
+        })
+
+    return sources
+
+
 def ask_question(question):
 
-    # print("\n" + "=" * 80)
-    # print("Searching Documents...")
-    # print("=" * 80)
-
     docs = retrieve_documents(question)
-
-    sources = print_documents(docs)
 
     context = build_context(docs)
 
     messages = build_messages(question, context)
 
-    # print("\n" + "=" * 80)
-    # print("Generating Answer...")
-    # print("=" * 80)
+    def stream():
 
-    # answer = llm.invoke(messages)
-    # return answer
+        for chunk in llm.stream(messages):
+            yield chunk
 
-    for chunk in llm.stream(messages):
-        yield chunk
-        # print(chunk)
+    return stream(), docs
 
 # ======================================================
 # Chat Loop
