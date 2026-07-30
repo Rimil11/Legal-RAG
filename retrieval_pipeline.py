@@ -4,7 +4,7 @@ from langchain_chroma import Chroma
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_ollama import OllamaEmbeddings
 from langchain_ollama.llms import OllamaLLM
-
+import requests
 
 # ======================================================
 # Configuration
@@ -13,7 +13,6 @@ from langchain_ollama.llms import OllamaLLM
 PERSIST_DIRECTORY = "db/chroma_db"
 EMBEDDING_MODEL = "bge-m3"
 LLM_MODEL = "llama3.2"
-TOP_K = 8
 
 
 
@@ -31,6 +30,38 @@ db = Chroma(
 
 llm = OllamaLLM(model=LLM_MODEL)
 
+# Load the reranker ONCE
+
+JINA_API_KEY = "jina_49b1c9ee41344667a4e180eccba1ddf389-d4bBOcePW8uIdxAhHs7hmYNXQ"
+
+def rerank_documents(question, docs, top_n=5):
+
+    response = requests.post(
+        "https://api.jina.ai/v1/rerank",
+        headers={
+            "Authorization": f"Bearer {JINA_API_KEY}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "jina-reranker-v2-base-multilingual",
+            "query": question,
+            "documents": [doc.page_content for doc in docs],
+            "top_n": top_n,
+            "return_documents": False
+        }
+    )
+
+    response.raise_for_status()
+
+    results = response.json()["results"]
+
+    reranked_docs = [
+        docs[item["index"]]
+        for item in results
+    ]
+
+    return reranked_docs
+
 
 # ======================================================
 # Helper Functions
@@ -38,19 +69,16 @@ llm = OllamaLLM(model=LLM_MODEL)
 
 def retrieve_documents(question):
 
-    results = db.similarity_search_with_relevance_scores(
+    docs = db.similarity_search(
         question,
-        k=TOP_K
+        k=20
     )
 
-    docs = []
-    for doc, score in results:
-
-        print(f"Score: {score:.3f}")
-
-        if score >= 0.4:
-            docs.append(doc)
-
+    docs = rerank_documents(
+        question,
+        docs,
+        top_n=5
+    )
     return docs
 
 
@@ -66,11 +94,11 @@ def print_documents(docs):
 
         sources.append((source, page))
 
-        # print("=" * 70)
-        # print(f"Document {index}")
-        # print(f"Source : {source}")
-        # print(f"Page   : {page}")
-        # print("-" * 70)
+        print("=" * 70)
+        print(f"Document {index}")
+        print(f"Source : {source}")
+        print(f"Page   : {page}")
+        print("-" * 70)
         # print(doc.page_content)
 
     return sources
@@ -106,8 +134,8 @@ def build_messages(question, context):
             content="""
 You are an AI Legal Assistant.
 
-Answer ONLY from the context of retrieved documents.
-Try to expalin for general question and give concise response to straight up facts.
+Answer from the context of retrieved documents.
+Try to think as response as a Legal Assistant (Never misguide with wrong knowledge).
 
 Rules:
 1. Never use outside knowledge.
@@ -147,14 +175,31 @@ def print_sources(sources):
 
     shown = set()
 
-    for source, page in sources:
+    for source in sources:
 
-        if (source, page) not in shown:
+        document = source.get("document", "Unknown")
+        page = source.get("page", "N/A")
+        section = source.get("section")
+        title = source.get("title")
 
-            page_text = page + 1 if isinstance(page, int) else page
-            print(f"- {source} (Page: {page_text})")
+        key = (document, page, section)
 
-            shown.add((source, page))
+        if key in shown:
+            continue
+
+        shown.add(key)
+
+        print(f"- Document : {document}")
+
+        if section:
+            print(f"  Section  : {section}")
+
+        if title:
+            print(f"  Title    : {title}")
+
+        print(f"  Page     : {page}")
+
+        print("--------------------------------------")
 
 
 def typewriter(text, delay=0.01):
@@ -195,49 +240,47 @@ def typewriter(text, delay=0.01):
 #         yield chunk
         # print(chunk)
 
-def build_sources(docs):
+# def build_sources(docs):
 
-    sources = []
+#     sources = []
 
-    seen = set()
+#     seen = set()
 
-    for doc in docs:
+#     for doc in docs:
 
-        metadata = doc.metadata
+#         metadata = doc.metadata
 
-        key = (
-            metadata.get("source"),
-            metadata.get("page"),
-            metadata.get("section")
-        )
+#         key = (
+#             metadata.get("source"),
+#             metadata.get("page"),
+#             metadata.get("section")
+#         )
 
-        if key in seen:
-            continue
+#         if key in seen:
+#             continue
 
-        seen.add(key)
+#         seen.add(key)
 
-        sources.append({
+#         sources.append({
 
-            "document": metadata.get("source"),
+#             "document": metadata.get("source"),
 
-            "page": metadata.get("page"),
+#             "page": metadata.get("page"),
 
-            "section": metadata.get("section"),
+#             "section": metadata.get("section"),
 
-            "title": metadata.get("title"),
+#             "title": metadata.get("title"),
 
-            "preview": doc.page_content[:300]
-        })
+#             "preview": doc.page_content[:300]
+#         })
 
-    return sources
+#     return sources
 
 
 def ask_question(question):
 
     docs = retrieve_documents(question)
-
     context = build_context(docs)
-
     messages = build_messages(question, context)
 
     def stream():
@@ -264,8 +307,8 @@ def start_chat():
             print("Goodbye!")
             break
 
+        
         response = ask_question(question)
-
         typewriter(response)
 
 

@@ -7,7 +7,6 @@ from langchain_community.document_loaders import (
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
-from utils.pdf_loader import load_pdf
 import glob
 
 def load_documents(docs_path):
@@ -41,7 +40,8 @@ def load_documents(docs_path):
 
         print("Loading", pdf_file)
 
-        pdf_documents.extend(load_pdf(pdf_file))
+        pdf_loader = PyPDFLoader(pdf_file)
+        pdf_documents.extend(pdf_loader.load())
 
     txt_documents = text_loader.load()
 
