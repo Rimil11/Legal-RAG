@@ -218,6 +218,7 @@ Add screenshots here.
 * Support OCR for scanned legal documents.
 * Containerize the application with Docker and deploy it to the cloud.
 * Add user authentication, analytics, and performance monitoring.
+* Support **scenario-based legal queries** by identifying applicable legal provisions from real-world situations (e.g., *"Suppose a man beats his wife. What charges may apply?"*).
 
 ---
 
