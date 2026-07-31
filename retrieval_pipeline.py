@@ -181,14 +181,12 @@ def print_sources(sources):
         page = source.get("page", "N/A")
         section = source.get("section")
         title = source.get("title")
-
         key = (document, page, section)
-
+        
         if key in shown:
             continue
 
         shown.add(key)
-
         print(f"- Document : {document}")
 
         if section:
@@ -196,9 +194,7 @@ def print_sources(sources):
 
         if title:
             print(f"  Title    : {title}")
-
         print(f"  Page     : {page}")
-
         print("--------------------------------------")
 
 
@@ -214,68 +210,6 @@ def typewriter(text, delay=0.01):
 # ===============================
 # Main RAG Function
 # ======================================================
-
-# def ask_question(question):
-
-#     # print("\n" + "=" * 80)
-#     # print("Searching Documents...")
-#     # print("=" * 80)
-
-#     docs = retrieve_documents(question)
-
-#     sources = print_documents(docs)
-
-#     context = build_context(docs)
-
-#     messages = build_messages(question, context)
-
-#     # print("\n" + "=" * 80)
-#     # print("Generating Answer...")
-#     # print("=" * 80)
-
-#     # answer = llm.invoke(messages)
-#     # return answer
-
-#     for chunk in llm.stream(messages):
-#         yield chunk
-        # print(chunk)
-
-# def build_sources(docs):
-
-#     sources = []
-
-#     seen = set()
-
-#     for doc in docs:
-
-#         metadata = doc.metadata
-
-#         key = (
-#             metadata.get("source"),
-#             metadata.get("page"),
-#             metadata.get("section")
-#         )
-
-#         if key in seen:
-#             continue
-
-#         seen.add(key)
-
-#         sources.append({
-
-#             "document": metadata.get("source"),
-
-#             "page": metadata.get("page"),
-
-#             "section": metadata.get("section"),
-
-#             "title": metadata.get("title"),
-
-#             "preview": doc.page_content[:300]
-#         })
-
-#     return sources
-
 
 def ask_question(question):
 
