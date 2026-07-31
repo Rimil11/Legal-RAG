@@ -127,6 +127,8 @@ pip install -r requirements.txt
 
 ---
 
+Replace the **📥 Prepare Documents** section with the following:
+
 ## 📥 Prepare Documents
 
 Place your legal documents inside the `docs/` directory.
@@ -142,21 +144,44 @@ Build the vector database:
 python ingestion_pipeline.py
 ```
 
+> **📝 Note**
+>
+> * To ingest a **new or different set of documents**, first delete the existing **`db/chroma_db/`** folder.
+> * If the `chroma_db` folder already exists, the application will reuse the existing vector database instead of creating a new one.
+> * After deleting the folder, rebuild the vector database by running:
+>
+> ```bash
+> python ingestion_pipeline.py
+> ```
+
+
+```bash
+python ingestion_pipeline.py
+```
+
 ---
 
 ## ▶️ Run the Application
 
-Start the application:
+Start the application using:
 
 ```bash
 python run.py
 ```
 
-Or launch Streamlit directly:
+The `run.py` script automatically launches:
+
+* **FastAPI Server (`server.py`)** – Serves the `docs/` directory, enabling PDF source previews directly from the application.
+* **Streamlit Application (`app.py`)** – Starts the Legal RAG chat interface.
+
+Using `run.py` is the recommended approach, as both services are required for the complete application experience, including **interactive PDF source previews**.
+
+If you only want to run the chat interface without PDF preview support:
 
 ```bash
 streamlit run app.py
 ```
+
 
 ---
 
@@ -205,12 +230,6 @@ Contributions are welcome!
 3. Commit your changes.
 4. Push your branch.
 5. Open a Pull Request.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
 
 ---
 
