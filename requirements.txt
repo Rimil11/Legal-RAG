@@ -7,3 +7,7 @@ langchain-ollama
 chromadb
 ollama
 torchvision
+streamlit
+requests
+fastapi
+uvicorn
