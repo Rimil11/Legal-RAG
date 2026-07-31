@@ -96,6 +96,18 @@ Legal-RAG/
 
 ## ⚙️ Installation
 
+### Install Ollama and Required Models
+
+Ensure **Ollama** is installed and running. Then pull the models used by the project:
+
+```bash
+ollama pull qwen3:4b
+ollama pull bge-m3
+```
+
+> **Note:** If you use different models, update the model names in the project configuration accordingly.
+
+
 Clone the repository:
 
 ```bash
@@ -126,8 +138,6 @@ pip install -r requirements.txt
 ```
 
 ---
-
-Replace the **📥 Prepare Documents** section with the following:
 
 ## 📥 Prepare Documents
 
@@ -199,12 +209,11 @@ streamlit run app.py
 
 ## 📸 Screenshots
 
-Add screenshots here.
-
-* Home Page
 * Chat Interface
+  <img width="1270" height="605" alt="image" src="https://github.com/user-attachments/assets/c0c3076e-0981-492d-97de-464e940dcef0" />
+
 * Source Citations
-* PDF Viewer
+  <img width="1266" height="590" alt="image" src="https://github.com/user-attachments/assets/eebe699a-910e-4ba3-8c5d-4280b612e2c8" />
 
 ---
 
