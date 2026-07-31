@@ -1,118 +1,221 @@
-# RAG Legal AI Assistant
+# ⚖️ Legal RAG AI Assistant
 
-## Overview
+> An AI-powered Legal Assistant that answers questions from legal documents using **Retrieval-Augmented Generation (RAG)**, **LangChain**, **ChromaDB**, **Ollama**, and **Streamlit**.
 
-This repository implements a Retrieval-Augmented Generation (RAG) project for legal document question answering. It ingests text and PDF legal documents, creates a vector store using embeddings, and exposes a Streamlit interface for asking legal questions. The system is designed to retrieve relevant legal text, rerank the results, and generate answers from a local LLM while providing source citations.
+---
 
-## What this project does
+## 📖 Overview
 
-- Loads `.txt` and `.pdf` documents from the `docs/` directory.
-- Splits large documents into smaller context chunks.
-- Generates embeddings using the Ollama `bge-m3` model.
-- Stores those embeddings in a Chroma vector store at `db/chroma_db`.
-- Retrieves relevant text chunks when a user asks a question.
-- Reranks retrieved documents using Jina AI's reranker API.
-- Sends the reranked context to a local Ollama LLM (`llama3.2`) to generate answers.
-- Presents a Streamlit chat UI for question entry and answer streaming.
-- Displays source metadata with links to the original PDF page.
+Legal documents are often lengthy and difficult to navigate. This project enables users to ask legal questions in natural language and receive context-aware answers backed by relevant legal document citations.
 
-## Project structure
+The system retrieves the most relevant document chunks, reranks them for better accuracy, and generates responses using a local Large Language Model (LLM), reducing hallucinations by grounding answers in retrieved context.
 
-- `app.py` - Streamlit application for the chat interface and source display.
-- `ingestion_pipeline.py` - Document loading, splitting, and vector store creation.
-- `retrieval_pipeline.py` - Retrieval logic, reranking, prompt construction, and answer streaming.
-- `run.py` - Launcher script that starts the FastAPI docs server and Streamlit app.
-- `server.py` - FastAPI app used to serve the `docs/` directory as static files.
-- `docs/` - Default document folder for ingestion.
-- `db/chroma_db/` - Persistent Chroma vector store output location.
+---
 
-## Dependencies
+## ✨ Features
 
-The project uses the following Python packages:
+* 📄 Supports PDF and TXT legal documents
+* 🔍 Semantic search using Chroma Vector Database
+* 🧠 Local embeddings with **bge-m3**
+* 🤖 Local LLM inference with **llama3.2**
+* 📑 Intelligent document chunking
+* ⚡ Reranking using Jina AI
+* 💬 Interactive Streamlit chat interface
+* 📚 Source citations with page numbers
+* 🔗 Direct links to original documents
 
-- `langchain`
-- `langchain-core`
-- `langchain-community`
-- `langchain-text-splitters`
-- `langchain-chroma`
-- `langchain-ollama`
-- `chromadb`
-- `ollama`
-- `torchvision`
+---
 
-Install dependencies with:
+## 🏗️ Architecture
+
+```text
+Legal Documents
+       │
+       ▼
+Document Loader
+       │
+       ▼
+Text Chunking
+       │
+       ▼
+Embeddings (bge-m3)
+       │
+       ▼
+ChromaDB Vector Store
+       │
+ User Question
+       │
+       ▼
+Similarity Search
+       │
+       ▼
+Jina AI Reranker
+       │
+       ▼
+LLM (llama3.2)
+       │
+       ▼
+Answer + Source Citations
+```
+
+---
+
+## 🚀 Tech Stack
+
+| Category        | Technologies      |
+| --------------- | ----------------- |
+| Language        | Python            |
+| Framework       | LangChain         |
+| LLM             | Ollama (llama3.2) |
+| Embeddings      | Ollama (bge-m3)   |
+| Vector Database | ChromaDB          |
+| UI              | Streamlit         |
+| Backend         | FastAPI           |
+| Reranker        | Jina AI           |
+
+---
+
+## 📂 Project Structure
+
+```text
+Legal-RAG/
+│── app.py
+│── ingestion_pipeline.py
+│── retrieval_pipeline.py
+│── run.py
+│── server.py
+│── requirements.txt
+│── README.md
+│
+├── docs/
+└── db/
+    └── chroma_db/
+```
+
+---
+
+## ⚙️ Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-username/Legal-RAG.git
+cd Legal-RAG
+```
+
+Create a virtual environment:
+
+**Windows**
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+**Linux/macOS**
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Setup
+---
 
-1. Place your legal documents in the `docs/` directory.
-   - Supported formats: `.txt` and `.pdf`
-2. Build the vector store by running:
+## 📥 Prepare Documents
+
+Place your legal documents inside the `docs/` directory.
+
+Supported formats:
+
+* PDF
+* TXT
+
+Build the vector database:
 
 ```bash
 python ingestion_pipeline.py
 ```
 
-If `db/chroma_db` already exists, the ingestion script will reuse the existing vector store.
+---
 
-## Usage
+## ▶️ Run the Application
 
-Start the app with:
+Start the application:
 
 ```bash
 python run.py
 ```
 
-This will:
-
-- Launch the FastAPI static file server for `docs/` on `http://127.0.0.1:8000`
-- Launch the Streamlit UI for the chat assistant
-
-Then open the Streamlit UI in your browser.
-
-Alternatively, you can run just the Streamlit app directly:
+Or launch Streamlit directly:
 
 ```bash
-python -m streamlit run app.py
+streamlit run app.py
 ```
 
-> Note: `app.py` also tries to start a local HTTP server on port `8000` to serve document files.
+---
 
-## How it works
+## 💡 How It Works
 
-### Ingestion
+1. Load legal documents.
+2. Split documents into semantic chunks.
+3. Generate embeddings and store them in ChromaDB.
+4. Retrieve relevant chunks for user queries.
+5. Rerank results using Jina AI.
+6. Generate grounded responses with a local LLM.
+7. Display answers with source citations and page numbers.
 
-- `load_documents()` loads all `.txt` files from `docs/` recursively and `.pdf` files using `PyPDFLoader`.
-- `split_documents()` breaks documents into overlapping chunks using `RecursiveCharacterTextSplitter`.
-- `create_vector_store()` computes embeddings with `OllamaEmbeddings(model="bge-m3")` and stores chunks in Chroma.
+---
 
-### Retrieval and answer generation
+## 📸 Screenshots
 
-- `retrieve_documents()` performs similarity search against the Chroma store and returns the top 20 candidates.
-- `rerank_documents()` calls Jina AI reranker to select the top 5 most relevant documents.
-- `build_context()` assembles retrieved text and metadata into a single prompt context.
-- `build_messages()` constructs a system + human prompt to instruct the LLM as a legal assistant.
-- `ask_question()` streams the local Ollama model response while returning retrieved source documents.
+Add screenshots here.
 
-### Streamlit UI
+* Home Page
+* Chat Interface
+* Source Citations
+* PDF Viewer
 
-- Users enter questions in a chat box.
-- The app streams responses from `ask_question()`.
-- It shows source documents with page metadata and provides direct links to the PDF source.
+---
 
-## Important notes
+## 🚀 Future Improvements
 
-- The system is configured for legal question answering and emphasizes using only retrieved document context.
-- The prompt instructs the model to avoid inventing legal facts and to reply explicitly when the answer is unavailable.
-- The `JINA_API_KEY` is currently stored in `retrieval_pipeline.py`; for production use, move it to environment variables.
-- `run.py` assumes `uvicorn` is available and uses `server.py` to serve `docs/`.
+* Replace local models with larger cloud-hosted LLMs (GPT, Claude, Gemini, etc.) for improved reasoning.
+* Build a modern **React.js** frontend with a **FastAPI** backend instead of Streamlit.
+* Implement Hybrid Search (Dense + BM25) for better retrieval accuracy.
+* Add conversation memory and multilingual support.
+* Highlight cited text directly inside PDFs.
+* Support OCR for scanned legal documents.
+* Containerize the application with Docker and deploy it to the cloud.
+* Add user authentication, analytics, and performance monitoring.
 
-## Extending the project
+---
 
-- Add more legal documents to `docs/` or create a custom ingestion path.
-- Replace `OllamaEmbeddings` or the LLM model name if you have another Ollama model installed.
-- Improve prompt engineering in `retrieval_pipeline.py` for better legal answer quality.
+## 🤝 Contributing
 
+Contributions are welcome!
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Commit your changes.
+4. Push your branch.
+5. Open a Pull Request.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+**Rimil Hans**
+
+If you found this project useful, consider giving it a ⭐ on GitHub.
