@@ -13,6 +13,7 @@ import requests
 PERSIST_DIRECTORY = "db/chroma_db"
 EMBEDDING_MODEL = "bge-m3"
 LLM_MODEL = "llama3.2"
+# LLM_MODEL = "qwen3:4b"
 
 
 
