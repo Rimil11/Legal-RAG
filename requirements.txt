@@ -3,11 +3,11 @@ langchain-core
 langchain-community
 langchain-text-splitters
 langchain-chroma
-langchain-ollama
+langchain-groq
 chromadb
-ollama
-torchvision
-streamlit
+streamlit[pdf]
 requests
+python-dotenv
+pypdf
 fastapi
 uvicorn
