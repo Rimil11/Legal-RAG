@@ -111,7 +111,7 @@ for doc in st.session_state.docs:
             # Deployment-compatible GitHub PDF URL
             pdf_url = (
                 f"https://raw.githubusercontent.com/"
-                f"Rimil11/Legal-RAG/master/docs/{filename}"
+                f"Rimil11/Legal-RAG/main/docs/{filename}"
                 f"#page={page}"
             )
 
