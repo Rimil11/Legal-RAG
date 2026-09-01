@@ -68,8 +68,6 @@ if question:
 
 
 # ---------------- SOURCES ----------------
-import urllib.parse
-
 
 shown = set()
 
@@ -81,18 +79,33 @@ for doc in st.session_state.docs:
     if not pdf:
         continue
 
-    # Normalize Windows path
+    # ------------------------------------------------
+    # Normalize Windows paths
+    # Example:
+    # docs\BNS.pdf  ->  docs/BNS.pdf
+    # ------------------------------------------------
+
     pdf = pdf.replace("\\", "/")
 
-    # Extract filename
+    # Get only the filename
     filename = os.path.basename(pdf)
 
+    # Avoid showing the same document/page multiple times
     key = (filename, page)
 
     if key in shown:
         continue
 
     shown.add(key)
+
+    # ------------------------------------------------
+    # Local PDF path
+    # ------------------------------------------------
+
+    pdf_path = os.path.join(
+        "docs",
+        filename
+    )
 
     with st.expander(
         f"📄 {filename} (Page {page})"
@@ -106,20 +119,43 @@ for doc in st.session_state.docs:
             f"**Page:** {page}"
         )
 
-        # GitHub PDF URL
-        pdf_url = (
-            f"https://raw.githubusercontent.com/"
-            f"Rimil11/Legal-RAG/main/docs/{filename}"
-        )
+        if os.path.exists(pdf_path):
 
-        viewer_url = (
-            "https://docs.google.com/gview"
-            f"?embedded=true&url={urllib.parse.quote(pdf_url, safe='')}"
-            f"#page={page}"
-        )
+            # ------------------------------------------------
+            # GitHub PDF URL
+            # ------------------------------------------------
 
-        st.link_button(
-            f"📄 Open PDF — Page {page}",
-            viewer_url,
-            use_container_width=True
-        )
+            pdf_url = (
+                f"https://raw.githubusercontent.com/"
+                f"Rimil11/Legal-RAG/main/docs/{filename}"
+                f"#page={page}"
+            )
+
+            # ------------------------------------------------
+            # Open PDF in a NEW browser tab
+            # ------------------------------------------------
+
+            st.markdown(
+                f"""
+                <a href="{pdf_url}" target="_blank">
+                    <button style="
+                        width: 100%;
+                        padding: 0.5rem;
+                        border-radius: 0.5rem;
+                        border: 1px solid #ccc;
+                        background-color: transparent;
+                        cursor: pointer;
+                        font-size: 16px;
+                    ">
+                        📄 Open PDF — Page {page}
+                    </button>
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+
+        else:
+
+            st.error(
+                f"PDF file not found: {pdf_path}"
+            )
