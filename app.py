@@ -79,6 +79,10 @@ for doc in st.session_state.docs:
     if not pdf:
         continue
 
+    # Normalize Windows paths for Linux/Streamlit Cloud
+    pdf = pdf.replace("\\", "/")
+
+    # Extract only the filename
     filename = os.path.basename(pdf)
 
     key = (filename, page)
@@ -111,7 +115,7 @@ for doc in st.session_state.docs:
             # Deployment-compatible GitHub PDF URL
             pdf_url = (
                 f"https://raw.githubusercontent.com/"
-                f"Rimil11/Legal-RAG/main/{filename}"
+                f"Rimil11/Legal-RAG/main/docs/{filename}"
                 f"#page={page}"
             )
 
