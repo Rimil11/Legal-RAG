@@ -69,6 +69,8 @@ if question:
 
 # ---------------- SOURCES ----------------
 
+import urllib.parse
+
 shown = set()
 
 for doc in st.session_state.docs:
@@ -82,7 +84,7 @@ for doc in st.session_state.docs:
     # Normalize Windows path
     pdf = pdf.replace("\\", "/")
 
-    # Extract filename
+    # Get filename
     filename = os.path.basename(pdf)
 
     key = (filename, page)
@@ -91,12 +93,6 @@ for doc in st.session_state.docs:
         continue
 
     shown.add(key)
-
-    # PDF must exist in static/
-    static_pdf = os.path.join(
-        "static",
-        filename
-    )
 
     with st.expander(
         f"📄 {filename} (Page {page})"
@@ -110,35 +106,35 @@ for doc in st.session_state.docs:
             f"**Page:** {page}"
         )
 
-        if os.path.exists(static_pdf):
+        # GitHub raw PDF
+        pdf_url = (
+            f"https://raw.githubusercontent.com/"
+            f"Rimil11/Legal-RAG/main/docs/"
+            f"{urllib.parse.quote(filename)}"
+        )
 
-            # Streamlit-hosted PDF
-            pdf_url = (
-                f"/app/static/{filename}"
-                f"#page={page}"
-            )
+        # PDF.js viewer
+        viewer_url = (
+            "https://mozilla.github.io/pdf.js/web/viewer.html"
+            f"?file={urllib.parse.quote(pdf_url, safe='')}"
+            f"#page={page}"
+        )
 
-            st.markdown(
-                f"""
-                <a href="{pdf_url}" target="_blank">
-                    <button style="
-                        width: 100%;
-                        padding: 0.6rem;
-                        border-radius: 0.5rem;
-                        border: 1px solid #ccc;
-                        background: transparent;
-                        cursor: pointer;
-                        font-size: 16px;
-                    ">
-                        📄 Open PDF — Page {page}
-                    </button>
-                </a>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.error(
-                f"PDF not found in static folder: {filename}"
-            )
+        st.markdown(
+            f"""
+            <a href="{viewer_url}" target="_blank">
+                <button style="
+                    width: 100%;
+                    padding: 0.6rem;
+                    border-radius: 0.5rem;
+                    border: 1px solid #ccc;
+                    background: transparent;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">
+                    📄 Open PDF — Page {page}
+                </button>
+            </a>
+            """,
+            unsafe_allow_html=True
+        )
