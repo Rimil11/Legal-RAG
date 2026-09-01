@@ -79,10 +79,10 @@ for doc in st.session_state.docs:
     if not pdf:
         continue
 
-    # Normalize Windows paths for Linux/Streamlit Cloud
+    # Normalize Windows path
     pdf = pdf.replace("\\", "/")
 
-    # Extract only the filename
+    # Extract filename
     filename = os.path.basename(pdf)
 
     key = (filename, page)
@@ -91,12 +91,6 @@ for doc in st.session_state.docs:
         continue
 
     shown.add(key)
-
-    # Find PDF inside docs folder
-    pdf_path = os.path.join(
-        "docs",
-        filename
-    )
 
     with st.expander(
         f"📄 {filename} (Page {page})"
@@ -110,23 +104,15 @@ for doc in st.session_state.docs:
             f"**Page:** {page}"
         )
 
-        if os.path.exists(pdf_path):
+        # GitHub PDF URL
+        pdf_url = (
+            f"https://raw.githubusercontent.com/"
+            f"Rimil11/Legal-RAG/main/docs/{filename}"
+            f"#page={page}"
+        )
 
-            # Deployment-compatible GitHub PDF URL
-            pdf_url = (
-                f"https://raw.githubusercontent.com/"
-                f"Rimil11/Legal-RAG/main/docs/{filename}"
-                f"#page={page}"
-            )
-
-            st.link_button(
-                "📄 Open Source PDF",
-                pdf_url,
-                use_container_width=True
-            )
-
-        else:
-
-            st.error(
-                f"PDF file not found: {pdf_path}"
-            )
+        st.link_button(
+            f"📄 Open PDF — Page {page}",
+            pdf_url,
+            use_container_width=True
+        )
