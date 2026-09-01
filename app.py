@@ -78,7 +78,7 @@ for doc in st.session_state.docs:
     pdf = doc.metadata.get("source")
     page = doc.metadata.get("page")
 
-    if not pdf:
+    if not pdf or page is None:
         continue
 
     # Normalize Windows path
@@ -87,7 +87,10 @@ for doc in st.session_state.docs:
     # Get filename
     filename = os.path.basename(pdf)
 
-    key = (filename, page)
+    # Chroma/PyPDF page is zero-based
+    display_page = int(page) + 1
+
+    key = (filename, display_page)
 
     if key in shown:
         continue
@@ -95,7 +98,7 @@ for doc in st.session_state.docs:
     shown.add(key)
 
     with st.expander(
-        f"📄 {filename} (Page {page})"
+        f"📄 {filename} (Page {display_page})"
     ):
 
         st.write(
@@ -103,7 +106,7 @@ for doc in st.session_state.docs:
         )
 
         st.write(
-            f"**Page:** {page}"
+            f"**Page:** {display_page}"
         )
 
         # GitHub raw PDF
@@ -117,7 +120,7 @@ for doc in st.session_state.docs:
         viewer_url = (
             "https://mozilla.github.io/pdf.js/web/viewer.html"
             f"?file={urllib.parse.quote(pdf_url, safe='')}"
-            f"#page={page}"
+            f"#page={display_page}"
         )
 
         st.markdown(
@@ -132,7 +135,7 @@ for doc in st.session_state.docs:
                     cursor: pointer;
                     font-size: 16px;
                 ">
-                    📄 Open PDF — Page {page}
+                    📄 Open PDF — Page {display_page}
                 </button>
             </a>
             """,
