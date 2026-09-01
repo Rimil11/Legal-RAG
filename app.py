@@ -106,8 +106,8 @@ for doc in st.session_state.docs:
 
         # GitHub PDF URL
         pdf_url = (
-            f"https://raw.githubusercontent.com/"
-            f"Rimil11/Legal-RAG/main/docs/{filename}"
+            f"https://github.com/"
+            f"Rimil11/Legal-RAG/blob/main/docs/{filename}"
             f"#page={page}"
         )
 
