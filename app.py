@@ -79,18 +79,12 @@ for doc in st.session_state.docs:
     if not pdf:
         continue
 
-    # ------------------------------------------------
-    # Normalize Windows paths
-    # Example:
-    # docs\BNS.pdf  ->  docs/BNS.pdf
-    # ------------------------------------------------
-
+    # Normalize Windows path
     pdf = pdf.replace("\\", "/")
 
-    # Get only the filename
+    # Extract filename
     filename = os.path.basename(pdf)
 
-    # Avoid showing the same document/page multiple times
     key = (filename, page)
 
     if key in shown:
@@ -98,12 +92,9 @@ for doc in st.session_state.docs:
 
     shown.add(key)
 
-    # ------------------------------------------------
-    # Local PDF path
-    # ------------------------------------------------
-
-    pdf_path = os.path.join(
-        "docs",
+    # PDF must exist in static/
+    static_pdf = os.path.join(
+        "static",
         filename
     )
 
@@ -119,31 +110,23 @@ for doc in st.session_state.docs:
             f"**Page:** {page}"
         )
 
-        if os.path.exists(pdf_path):
+        if os.path.exists(static_pdf):
 
-            # ------------------------------------------------
-            # GitHub PDF URL
-            # ------------------------------------------------
-
+            # Streamlit-hosted PDF
             pdf_url = (
-                f"https://raw.githubusercontent.com/"
-                f"Rimil11/Legal-RAG/main/docs/{filename}"
+                f"/app/static/{filename}"
                 f"#page={page}"
             )
-
-            # ------------------------------------------------
-            # Open PDF in a NEW browser tab
-            # ------------------------------------------------
 
             st.markdown(
                 f"""
                 <a href="{pdf_url}" target="_blank">
                     <button style="
                         width: 100%;
-                        padding: 0.5rem;
+                        padding: 0.6rem;
                         border-radius: 0.5rem;
                         border: 1px solid #ccc;
-                        background-color: transparent;
+                        background: transparent;
                         cursor: pointer;
                         font-size: 16px;
                     ">
@@ -157,5 +140,5 @@ for doc in st.session_state.docs:
         else:
 
             st.error(
-                f"PDF file not found: {pdf_path}"
+                f"PDF not found in static folder: {filename}"
             )
