@@ -89,10 +89,10 @@ for doc in st.session_state.docs:
     shown.add(key)
 
     # Find PDF inside docs folder
-    pdf_path = os.path.join(
-        "docs",
-        filename
-    )
+    # pdf_path = os.path.join(
+    #     "docs",
+    #     filename
+    # )
 
     with st.expander(
         f"📄 {filename} (Page {page})"
