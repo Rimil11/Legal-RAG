@@ -108,10 +108,10 @@ for doc in st.session_state.docs:
 
         if os.path.exists(pdf_path):
 
-            # Open PDF directly at cited page
+            # Deployment-compatible GitHub PDF URL
             pdf_url = (
-                f"http://127.0.0.1:8000/"
-                f"docs/{filename}"
+                f"https://raw.githubusercontent.com/"
+                f"Rimil11/Legal-RAG/master/docs/{filename}"
                 f"#page={page}"
             )
 

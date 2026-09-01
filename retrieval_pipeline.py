@@ -11,10 +11,10 @@ load_dotenv()
 
 
 def get_secret(name):
-    if name in st.secrets:
+    try:
         return st.secrets[name]
-
-    return os.getenv(name)
+    except Exception:
+        return os.getenv(name)
 
 
 JINA_API_KEY = get_secret("JINA_API_KEY")
