@@ -68,6 +68,8 @@ if question:
 
 
 # ---------------- SOURCES ----------------
+import urllib.parse
+
 
 shown = set()
 
@@ -106,13 +108,18 @@ for doc in st.session_state.docs:
 
         # GitHub PDF URL
         pdf_url = (
-            f"https://github.com/"
-            f"Rimil11/Legal-RAG/blob/main/docs/{filename}"
+            f"https://raw.githubusercontent.com/"
+            f"Rimil11/Legal-RAG/main/docs/{filename}"
+        )
+
+        viewer_url = (
+            "https://docs.google.com/gview"
+            f"?embedded=true&url={urllib.parse.quote(pdf_url, safe='')}"
             f"#page={page}"
         )
 
         st.link_button(
             f"📄 Open PDF — Page {page}",
-            pdf_url,
+            viewer_url,
             use_container_width=True
         )
